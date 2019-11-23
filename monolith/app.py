@@ -1,6 +1,5 @@
 from flask import Flask
 
-from monolith.auth import login_manager
 from monolith.database import db, ReactionCatalogue
 from monolith.urls import DEFAULT_DB
 from monolith.views import blueprints
@@ -21,7 +20,6 @@ def create_app(database=DEFAULT_DB, wtf=False, login_disabled=False):
         bp.app = flask_app
 
     db.init_app(flask_app)
-    login_manager.init_app(flask_app)
     db.create_all(app=flask_app)
 
     with flask_app.app_context():

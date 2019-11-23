@@ -1,4 +1,4 @@
-from monolith.app import app
+from ReactionsService.app import app
 
 if __name__ == '__main__':
     app.run()

@@ -1,8 +1,8 @@
 from flask import Flask
 
-from monolith.database import db, ReactionCatalogue
-from monolith.urls import DEFAULT_DB
-from monolith.views import blueprints
+from ReactionsService.database import db, ReactionCatalogue
+from ReactionsService.urls import DEFAULT_DB
+from ReactionsService.views import blueprints
 
 
 def create_app(database=DEFAULT_DB, wtf=False, login_disabled=False):

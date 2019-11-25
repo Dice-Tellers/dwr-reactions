@@ -92,11 +92,9 @@ def _reaction():
     return jsonify(description="Reaction successfully added")
 
 
-@reactions.operation("stats")
-def _reaction_stats():
-    story_id = 1
-    all_reactions = db.engine.execute(
-        "SELECT reaction_caption FROM reaction_catalogue ORDER BY reaction_caption").fetchall()
+@reactions.operation("statsReactions")
+def _reaction_stats(story_id):
+    all_reactions = db.engine.execute("SELECT reaction_caption FROM reaction_catalogue ORDER BY reaction_caption").fetchall()
     query = "SELECT reaction_caption, counter FROM counter c, reaction_catalogue r WHERE " \
             "reaction_type_id = reaction_id AND story_id = " + str(story_id) + " ORDER BY reaction_caption "
     story_reactions = db.engine.execute(query).fetchall()
@@ -116,4 +114,34 @@ def _reaction_stats():
         for existing_r in story_reactions:
             reactions_list.update({existing_r.reaction_caption: existing_r.counter})
 
-    return json.dumps(dict(reactions_list))
+    return jsonify(reactions_list)
+
+@reactions.operation("statsUserReactions")
+def _reaction_stats(user_id):
+    response = requests.get('http://localhost:5001/stories/users/' + str(user_id)) # call stories/userid di eleonora
+    all_stories = response.json()
+    num_all_stories = 0
+    reactions_avg = 0.0
+    tot_num_reactions = 0
+
+    if response.status_code < 300:
+        num_all_stories = len(all_stories)
+    else: 
+        abort(400, 'There was an error calling stories service')
+
+    if num_all_stories is not 0:
+        for story in all_stories:
+            result = db.engine.execute("SELECT sum(counter) as num_reactions "
+                                        "FROM counter "
+                                        "WHERE story_id = {} "
+                                        "GROUP BY story_id".format(story.id)).fetchall()
+            tot_num_reactions += result.num_reactions
+        
+        reactions_avg = round(tot_num_reactions / num_all_stories, 2)
+
+    result = {
+        'tot_num_reactions': tot_num_reactions,
+        'avg_reactions': reactions_avg
+    }
+
+    return jsonify(result)

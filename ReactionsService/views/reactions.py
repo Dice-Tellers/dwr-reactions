@@ -29,10 +29,8 @@ def _get_counters(story_id):
 def _delete_cascade():
     story_id = request.json['story_id']
 
-    reactions_to_delete = Reaction.query.filter(Reaction.story_id == story_id).all()
-    counters_to_delete = Counter.query.filter(Counter.story_id == story_id).all()
-    reactions_to_delete.delete()
-    counters_to_delete.delete()
+    Reaction.query.filter(Reaction.story_id == story_id).delete()
+    Counter.query.filter(Counter.story_id == story_id).delete()
     db.session.commit()
 
     return jsonify(description="Deletion has been successful")

@@ -4,7 +4,7 @@ import json
 import flask_testing
 
 from ReactionsService.app import create_app
-from ReactionsService.database import db, Reaction
+from ReactionsService.database import db, Reaction, Counter, ReactionCatalogue
 from ReactionsService.urls import TEST_DB
 
 
@@ -146,6 +146,32 @@ class TestReaction(flask_testing.TestCase):
         }
         self.client.post('/new', json=data)
 
+        reply = self.client.get('/counters/1')
+
+        body = json.loads(reply.get_data(as_text=True))
+        expected_body = [{"reaction_type_id": 1, "story_id": 1, "counter": 0},
+                         {"reaction_type_id": 2, "story_id": 1, "counter": 0}]
+        self.assertEqual(expected_body, body)
+
+    def test_initialize_new_story(self):
+
+        data = {
+            'story_id': 1,
+        }
+        self.client.post('/new', json=data)
+
+        types = ReactionCatalogue.query.all()
+        counters = Counter.query.filter(Counter.story_id == 1).all()
+
+        self.assertEqual(len(counters), len(types))
+
+
+    def test_delete_cascade(self):
+
+        data = {
+            'story_id': 1,
+        }
+        self.client.post('/new', json=data)
         data = {
             'story_id': 1,
             'current_user': 1,
@@ -153,11 +179,15 @@ class TestReaction(flask_testing.TestCase):
         }
 
         self.client.post('/react', json=data)
-        reply = self.client.get('/counters/1')
 
-        body = json.loads(reply.get_data(as_text=True))
-        expected_body = jsonify([{"reaction_type_id": "1", "story_id": "1", "counter": "1"},
-                         {"reaction_type_id": "2", "story_id": "1", "counter": "0"}])
-        self.assertEqual(expected_body, body)
+        data = {
+            'story_id': 1,
+        }
 
-    # def test_initialize_new_story(self):
+        self.client.delete("/delete", json=data)
+
+        reactions = Reaction.query.filter(Reaction.story_id == 1).all()
+        counters = Counter.query.filter(Counter.story_id == 1).all()
+
+        self.assertEqual(len(counters), 0)
+        self.assertEqual(len(reactions), 0)

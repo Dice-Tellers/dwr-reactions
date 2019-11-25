@@ -2,7 +2,7 @@ import os
 
 import requests
 from flakon import SwaggerBlueprint
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from sqlalchemy import and_
 
 from ReactionsService.database import db, Reaction, ReactionCatalogue, Counter
@@ -132,7 +132,7 @@ def _reaction_stats(story_id):
 
 @reactions.operation("statsUserReactions")
 def _reaction_user_stats(user_id):
-    response = requests.get('http://localhost:5001/stories/users/' + str(user_id))  # call stories/userid di eleonora
+    response = requests.get('http://localhost:5003/stories/users/{}'.format(user_id))  # call stories/userid di eleonora
     all_stories = response.json()
     num_all_stories = 0
     reactions_avg = 0.0

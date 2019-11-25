@@ -1,32 +1,35 @@
+import os
+
 from flask import jsonify
 import json
 
 from flask import Blueprint, redirect, request, url_for, flash, jsonify
+from flakon import SwaggerBlueprint
 from flask_login import (current_user, login_required)
 from sqlalchemy import and_
 
 from ReactionsService.database import db, Reaction, ReactionCatalogue, Counter
 
-reactions = Blueprint('reactions', __name__)
+
+YML = os.path.join(os.path.dirname(__file__), '..', 'static', 'api_reactions.yaml')
+reactions = SwaggerBlueprint('reactions', '__name__', swagger_spec=YML)
 
 
-@reactions.route('/reactions/story_id', methods=['GET'])
+@reactions.route('/story_id', methods=['GET'])
 def _get_reactions(story_id):
-
     all_reactions = Reaction.query.filter(Reaction.story_id == story_id).order_by(Reaction.reaction_type_id).all()
 
     return jsonify(all_reactions)
 
 
-@reactions.route('/reactions/counters/story_id', methods=['GET'])
+@reactions.route('/counters/story_id', methods=['GET'])
 def _get_counters(story_id):
-
     all_counter = Counter.query.filter(Counter.story_id == story_id).order_by(Reaction.reaction_type_id).all()
 
     return jsonify(all_counter)
 
 
-@reactions.route('/reactions/new', methods=['POST'])
+@reactions.route('/new', methods=['POST'])
 def _initialize_new_story():
     story_id = request.args['story_id']
 
@@ -43,11 +46,10 @@ def _initialize_new_story():
     return
 
 
-@reactions.route('/reactions/react', methods=['POST'])
-@login_required
+@reactions.route('/react', methods=['POST'])
 def _reaction():
-    story_id = request.args['story_id']
-    reaction_caption = request.args['reaction_caption']
+    story_id = request.json['story_id']
+    reaction_caption = request.json['reaction_caption']
 
     # Retrieve all reactions with a specific user_id ad story_id
     old_reaction = Reaction.query.filter(and_(Reaction.reactor_id == current_user.id,
@@ -92,27 +94,28 @@ def _reaction():
     return redirect(url_for('stories._stories'))
 
 
-@reactions.route('/reactions/stats', methods=['GET'])
+@reactions.route('/stats', methods=['GET'])
 def _reaction_stats():
     story_id = 1
-    all_reactions = db.engine.execute("SELECT reaction_caption FROM reaction_catalogue ORDER BY reaction_caption").fetchall()
+    all_reactions = db.engine.execute(
+        "SELECT reaction_caption FROM reaction_catalogue ORDER BY reaction_caption").fetchall()
     query = "SELECT reaction_caption, counter FROM counter c, reaction_catalogue r WHERE " \
-                "reaction_type_id = reaction_id AND story_id = " + str(story_id) + " ORDER BY reaction_caption "
+            "reaction_type_id = reaction_id AND story_id = " + str(story_id) + " ORDER BY reaction_caption "
     story_reactions = db.engine.execute(query).fetchall()
     num_reactions = ReactionCatalogue.query.count()
     num_story_reactions = Counter.query.filter_by(story_id=story_id).join(ReactionCatalogue).count()
-    
+
     # Reactions dictionary of tuples (Reaction, Counter)
     reactions_list = {}
 
     # Set 0 all counters for all reactions
     for r in all_reactions:
-            reactions_list.update({r.reaction_caption: 0})
+        reactions_list.update({r.reaction_caption: 0})
 
     # Generate tuples (reaction, counter)
     if num_reactions != 0 and num_story_reactions != 0:
         # Update all counter with correct value
         for existing_r in story_reactions:
-            reactions_list.update({existing_r.reaction_caption : existing_r.counter})
+            reactions_list.update({existing_r.reaction_caption: existing_r.counter})
 
     return json.dumps(dict(reactions_list))

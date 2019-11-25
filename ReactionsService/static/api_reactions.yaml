@@ -1,0 +1,143 @@
+swagger: '2.0'
+info:
+  title: Reactions microservice
+  description: Operations to menage reactions
+  version: 1.0.0
+host: 127.0.0.1
+schemes:
+  - http
+  - https
+paths:
+  /story_id:
+    get:
+      description: Return the list of reactions of a given story
+      operationId: getReactions
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: A JSON array of JSON objects containing reactions data
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user'
+  /counters/story_id:
+    get:
+      description: Return the list of counters of the given story
+      operationId: getCounters
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: A JSON array of JSON objects containing counters data
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user'
+
+  /new:
+    post:
+      description: Initializie a new counter when a new story has been published
+      operationId: newStory
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: story_id
+          schema:
+            $ref: '#/definitions/login_data'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Counters created successfully
+  /react:
+    post:
+      description: Insert a new reaction
+      operationId: loginUserz
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: story_id
+          type: interger
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Email and password ok
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+        '404':
+          description: The specified email does not exist
+        '400':
+          description: Error with one parameter/Password uncorrect
+  /stats:
+    get:
+      description: Return the list of all users
+      operationId: getUserszzz
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: A JSON array of JSON objects containing users data
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user'
+
+
+definitions:
+  user:
+    type: object
+    properties:
+      id:
+        type: integer
+      email:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+  user_wall:
+    type: object
+    properties:
+      id:
+        type: integer
+      email:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      dateofbirth:
+        type: string
+        description: dd/mm/yyyy format
+      follower_counter:
+        type: integer
+      is_admmin:
+        type: boolean
+  new_user:
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      dateofbirth:
+        type: string
+        description: dd/mm/yyyy format
+  login_data:
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string

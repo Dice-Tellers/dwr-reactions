@@ -10,7 +10,6 @@ from sqlalchemy import and_
 
 from ReactionsService.database import db, Reaction, ReactionCatalogue, Counter
 
-
 YML = os.path.join(os.path.dirname(__file__), '..', 'static', 'api_reactions.yaml')
 reactions = SwaggerBlueprint('reactions', '__name__', swagger_spec=YML)
 
@@ -43,7 +42,7 @@ def _initialize_new_story():
         db.session.add(new_counter)
 
     db.session.submit()
-    return
+    return jsonify(description="Counter successfully created")
 
 
 @reactions.operation("react")
@@ -75,8 +74,7 @@ def _reaction():
                 Reaction.query.filter_by(reactor_id=current_user.id, story_id=story_id).delete()
 
             db.session.commit()
-            flash('Reaction successfully deleted!')
-            return redirect(url_for('stories._stories'))
+            return jsonify(description="Reaction successfully deleted")
         else:
 
             if old_reaction.marked == 0:
@@ -91,7 +89,7 @@ def _reaction():
                 db.session.add(new_reaction)
     db.session.commit()
 
-    return redirect(url_for('stories._stories'))
+    return jsonify(description="Reaction successfully added")
 
 
 @reactions.operation("stats")

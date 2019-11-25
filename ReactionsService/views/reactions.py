@@ -15,21 +15,21 @@ YML = os.path.join(os.path.dirname(__file__), '..', 'static', 'api_reactions.yam
 reactions = SwaggerBlueprint('reactions', '__name__', swagger_spec=YML)
 
 
-@reactions.route('/story_id', methods=['GET'])
+@reactions.operation("getReactions")
 def _get_reactions(story_id):
     all_reactions = Reaction.query.filter(Reaction.story_id == story_id).order_by(Reaction.reaction_type_id).all()
 
     return jsonify(all_reactions)
 
 
-@reactions.route('/counters/story_id', methods=['GET'])
+@reactions.operation("getCounters")
 def _get_counters(story_id):
     all_counter = Counter.query.filter(Counter.story_id == story_id).order_by(Reaction.reaction_type_id).all()
 
     return jsonify(all_counter)
 
 
-@reactions.route('/new', methods=['POST'])
+@reactions.operation("newStory")
 def _initialize_new_story():
     story_id = request.args['story_id']
 
@@ -46,7 +46,7 @@ def _initialize_new_story():
     return
 
 
-@reactions.route('/react', methods=['POST'])
+@reactions.operation("react")
 def _reaction():
     story_id = request.json['story_id']
     reaction_caption = request.json['reaction_caption']
@@ -94,7 +94,7 @@ def _reaction():
     return redirect(url_for('stories._stories'))
 
 
-@reactions.route('/stats', methods=['GET'])
+@reactions.operation("stats")
 def _reaction_stats():
     story_id = 1
     all_reactions = db.engine.execute(

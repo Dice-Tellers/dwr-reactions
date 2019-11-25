@@ -3,9 +3,8 @@ import os
 from flask import jsonify
 import json
 
-from flask import Blueprint, redirect, request, url_for, flash, jsonify
+from flask import  request, jsonify
 from flakon import SwaggerBlueprint
-from flask_login import (current_user, login_required)
 from sqlalchemy import and_
 
 from ReactionsService.database import db, Reaction, ReactionCatalogue, Counter
@@ -27,6 +26,17 @@ def _get_counters(story_id):
 
     return jsonify(all_counter)
 
+@reactions.operation("delete")
+def _delete_cascade():
+    story_id = request.args['story_id']
+
+    reactions_to_delete = Reaction.query.filter(Reaction.story_id == story_id).all()
+    counters_to_delete = Counter.query.filter(Counter.story_id == story_id).all()
+    reactions_to_delete.delete()
+    counters_to_delete.delete()
+    db.session.commit()
+
+    return jsonify(description="Deletion has been successful")
 
 @reactions.operation("newStory")
 def _initialize_new_story():
@@ -48,10 +58,11 @@ def _initialize_new_story():
 @reactions.operation("react")
 def _reaction():
     story_id = request.json['story_id']
+    current_user = request.json['current_user']
     reaction_caption = request.json['reaction_caption']
 
     # Retrieve all reactions with a specific user_id ad story_id
-    old_reaction = Reaction.query.filter(and_(Reaction.reactor_id == current_user.id,
+    old_reaction = Reaction.query.filter(and_(Reaction.reactor_id == current_user,
                                               Reaction.story_id == story_id,
                                               Reaction.marked != 2)).first()
 
@@ -61,17 +72,20 @@ def _reaction():
     # Retrieve if present the user's last reaction about the same story
     if old_reaction is None:
         new_reaction = Reaction()
-        new_reaction.reactor_id = current_user.id
+        new_reaction.reactor_id = current_user
         new_reaction.story_id = story_id
         new_reaction.reaction_type_id = reaction_type_id
         new_reaction.marked = 0
         db.session.add(new_reaction)
     else:
         if old_reaction.reaction_type_id == reaction_type_id:
-            reaction = Reaction.query.filter_by(reactor_id=current_user.id, story_id=story_id).first()
+            reaction = Reaction.query.filter_by(reactor_id=current_user, story_id=story_id).first()
 
             if reaction.marked == 0:
-                Reaction.query.filter_by(reactor_id=current_user.id, story_id=story_id).delete()
+                Reaction.query.filter_by(reactor_id=current_user, story_id=story_id).delete()
+
+            if reaction.marked == 1:
+                reaction.marked = 2
 
             db.session.commit()
             return jsonify(description="Reaction successfully deleted")
@@ -82,7 +96,7 @@ def _reaction():
             elif old_reaction.marked == 1:
                 old_reaction.marked = 2
                 new_reaction = Reaction()
-                new_reaction.reactor_id = current_user.id
+                new_reaction.reactor_id = current_user
                 new_reaction.story_id = story_id
                 new_reaction.marked = 0
                 new_reaction.reaction_type_id = reaction_type_id

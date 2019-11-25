@@ -8,12 +8,17 @@ schemes:
   - http
   - https
 paths:
-  /reactions/story_id:
+  /reactions/{story_id}:
     get:
       description: Return the list of reactions of a given story
       operationId: getReactions
       produces:
         - application/json
+      parameters:
+        - in: path
+          name: story_id
+          type: integer
+          required: True
       responses:
         '200':
           description: A JSON array of JSON objects containing reactions data
@@ -21,12 +26,17 @@ paths:
             type: array
             items:
               $ref: '#/definitions/reactions'
-  /counters/story_id:
+  /counters/{story_id}:
     get:
       description: Return the list of counters of the given story
       operationId: getCounters
       produces:
         - application/json
+      parameters:
+        - in: path
+          name: story_id
+          type: integer
+          required: True
       responses:
         '200':
           description: A JSON array of JSON objects containing counters data
@@ -34,7 +44,6 @@ paths:
             type: array
             items:
               $ref: '#/definitions/story'
-
   /new:
     post:
       description: Initializie a new counter when a new story has been published
@@ -70,6 +79,25 @@ paths:
       responses:
         '200':
           description: Reaction submitted
+  /delete:
+    delete:
+      description: Delete all the counters and the reactions of the given story
+      operationId: delete
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: story_id
+          schema:
+            items:
+              $ref: '#/definitions/delete'
+          required: True
+          description: The value that identifies the story
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Deletion has been successful
 
   /stats:
     post:
@@ -129,6 +157,14 @@ definitions:
     type: object
     properties:
       story_id:
-        type: string
+        type: integer
+      current_user:
+        type: integer
       reaction_caption:
         type: string
+
+  delete:
+    type: object
+    properties:
+      story_id:
+        type: integer

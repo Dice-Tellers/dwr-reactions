@@ -15,14 +15,14 @@ reactions = SwaggerBlueprint('reactions', '__name__', swagger_spec=YML)
 def _get_reactions(story_id):
     all_reactions = Reaction.query.filter(Reaction.story_id == story_id).order_by(Reaction.reaction_type_id).all()
 
-    return jsonify(all_reactions)
+    return jsonify([reaction.to_json() for reaction in all_reactions])
 
 
 @reactions.operation("getCounters")
 def _get_counters(story_id):
-    all_counter = Counter.query.filter(Counter.story_id == story_id).order_by(Reaction.reaction_type_id).all()
+    all_counter = Counter.query.filter(Counter.story_id == story_id).order_by(Counter.reaction_type_id).all()
 
-    return jsonify(all_counter)
+    return jsonify([counter.to_json() for counter in all_counter])
 
 
 @reactions.operation("delete")
@@ -40,18 +40,18 @@ def _delete_cascade():
 
 @reactions.operation("newStory")
 def _initialize_new_story():
-    story_id = request.args['story_id']
+    story_id = request.json['story_id']
 
-    all_reactions = list(db.engine.execute("SELECT reaction_id FROM reaction_catalogue ORDER BY reaction_id"))
+    all_reactions = ReactionCatalogue.query.all()
 
-    for reaction in all_reactions:
+    for reactionType in all_reactions:
         new_counter = Counter()
-        new_counter.reaction_type_id = reaction.id
+        new_counter.reaction_type_id = reactionType.reaction_id
         new_counter.story_id = story_id
         new_counter.counter = 0
         db.session.add(new_counter)
 
-    db.session.submit()
+    db.session.commit()
     return jsonify(description="Counter successfully created")
 
 

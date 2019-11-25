@@ -26,6 +26,15 @@ class Reaction(db.Model):
 
     marked = db.Column(db.Integer, default=0)  # True iff it has been counted in Story.likes
 
+    def to_json(self):
+        json = {}
+        for attr in ('id', 'reactor_id', 'story_id', 'reaction_type_id',
+                     'marked'):
+            value = getattr(self, attr)
+            json[attr] = value
+        return json
+
+
 class Counter(db.Model):
     __tablename__ = 'counter'
 
@@ -35,6 +44,14 @@ class Counter(db.Model):
     story_id = db.Column(db.Integer , nullable=False)
 
     counter = db.Column(db.Integer, default=0)
+
+    def to_json(self):
+        json = {}
+        for attr in ('reaction_type_id', 'story_id', 'counter'):
+            value = getattr(self, attr)
+            json[attr] = value
+        return json
+
 
 
 

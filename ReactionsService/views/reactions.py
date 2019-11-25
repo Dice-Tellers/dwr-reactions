@@ -2,8 +2,9 @@ import os
 
 from flask import jsonify
 import json
+import requests
 
-from flask import Blueprint, redirect, request, url_for, flash, jsonify
+from flask import Blueprint, redirect, request, url_for, flash, jsonify, abort
 from flakon import SwaggerBlueprint
 from flask_login import (current_user, login_required)
 from sqlalchemy import and_
@@ -117,7 +118,7 @@ def _reaction_stats(story_id):
     return jsonify(reactions_list)
 
 @reactions.operation("statsUserReactions")
-def _reaction_stats(user_id):
+def _reaction_user_stats(user_id):
     response = requests.get('http://localhost:5001/stories/users/' + str(user_id)) # call stories/userid di eleonora
     all_stories = response.json()
     num_all_stories = 0

@@ -71,16 +71,17 @@ paths:
         '200':
           description: Reaction submitted
 
-  /reactions/stats:
+  /reactions/stats/{story_id}:
     get:
       description: Get reactions counter for a story
       operationId: statsReactions
       consumes:
         - application/json
       parameters:
-        - in: body
+        - in: path
           name: story_id
           required: True
+          type: integer
           description: The value that identifies the story
       produces:
         - application/json
@@ -88,16 +89,17 @@ paths:
         '200':
           description: Counters of reactions for a story
 
-  /reactions/stats/user:
+  /reactions/stats/users/{user_id}:
     get:
       description: Get reactions statistics for user wall
       operationId: statsUserReactions
       consumes:
         - application/json
       parameters:
-        - in: body
+        - in: path
           name: user_id
           required: True
+          type: integer
           description: The value that identifies the user
       produces:
         - application/json

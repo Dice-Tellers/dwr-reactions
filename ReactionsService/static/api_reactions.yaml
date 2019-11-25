@@ -99,25 +99,43 @@ paths:
         '200':
           description: Deletion has been successful
 
-  /stats:
-    post:
-      description: Insert a new reaction
-      operationId: stats
+  /reactions/stats/{story_id}:
+    get:
+      description: Get reactions counter for a story
+      operationId: statsReactions
       consumes:
         - application/json
       parameters:
-        - in: body
+        - in: path
           name: story_id
-          schema:
-            items:
-              $ref: '#/definitions/react'
           required: True
+          type: integer
           description: The value that identifies the story
       produces:
         - application/json
       responses:
         '200':
-          description: Reaction submitted
+          description: Counters of reactions for a story
+
+  /reactions/stats/users/{user_id}:
+    get:
+      description: Get reactions statistics for user wall
+      operationId: statsUserReactions
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: user_id
+          required: True
+          type: integer
+          description: The value that identifies the user
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Return reactions statistics for user's wall
+        '400':
+          description: There was an error calling stories service
 
 
 definitions:

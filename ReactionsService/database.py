@@ -41,7 +41,7 @@ class Counter(db.Model):
     reaction_type_id = db.Column(db.Integer, db.ForeignKey('reaction_catalogue.reaction_id'), primary_key=True)
     reaction_type = relationship('ReactionCatalogue', foreign_keys='Counter.reaction_type_id')
 
-    story_id = db.Column(db.Integer , nullable=False)
+    story_id = db.Column(db.Integer, primary_key=True, nullable=False)
 
     counter = db.Column(db.Integer, default=0)
 

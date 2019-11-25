@@ -135,8 +135,9 @@ def _reaction_user_stats(user_id):
             result = db.engine.execute("SELECT sum(counter) as num_reactions "
                                         "FROM counter "
                                         "WHERE story_id = {} "
-                                        "GROUP BY story_id".format(story.id)).fetchall()
-            tot_num_reactions += result.num_reactions
+                                        "GROUP BY story_id".format(story["id"])).first()
+            if result is not None:
+                tot_num_reactions += result.num_reactions
         
         reactions_avg = round(tot_num_reactions / num_all_stories, 2)
 

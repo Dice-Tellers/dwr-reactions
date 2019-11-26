@@ -191,3 +191,18 @@ class TestReaction(flask_testing.TestCase):
 
         self.assertEqual(len(counters), 0)
         self.assertEqual(len(reactions), 0)
+    
+    def test_reactions_stats(self):
+        # Check stats of story #1
+        response = self.client.get('/reactions/stats/1')
+        body = json.loads(str(response.data, 'utf8'))
+        self.assertEqual(body, {"dislike": 0, "like": 0})
+
+        # Check reactions of a user's wall
+        response = self.client.get('/reactions/stats/users/1')
+        body = json.loads(str(response.data, 'utf8'))
+        expected_body = {
+            'tot_num_reactions': 0,
+            'avg_reactions': 0
+        }
+        self.assertEqual(body, expected_body)

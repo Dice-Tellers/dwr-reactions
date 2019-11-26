@@ -1,8 +1,8 @@
 from celery import Celery
 from sqlalchemy import and_
 
-from monolith.app import create_app
-from monolith.database import *
+from .app import create_app
+from .database import *
 
 _APP = None
 
@@ -12,8 +12,8 @@ celery = Celery(__name__, backend=BACKEND, broker=BROKER)
 # Schedule for the Celery task about reactions' update
 celery.conf.beat_schedule = {
     'react_task': {
-        'task': 'monolith.tasks.like_task',
-        'schedule': 5.0
+        'task': 'ReactionsService.tasks.like_task',
+        'schedule': 3.0
     },
 }
 celery.conf.timezone = 'UTC'
@@ -33,7 +33,6 @@ def like_task():
             "SELECT story_id, reaction_type_id, reaction_caption, COUNT(*) AS count, marked "
             "FROM reaction r "
             "JOIN reaction_catalogue rc on r.reaction_type_id = rc.reaction_id "
-            "JOIN story s on r.story_id = s.id "
             "WHERE marked=0 OR marked=2 "
             "GROUP BY story_id, reaction_type_id, marked "
             "ORDER BY story_id, reaction_type_id, marked").fetchall()
@@ -45,17 +44,7 @@ def like_task():
             counter_row = Counter.query.filter(and_(Counter.reaction_type_id == r.reaction_type_id,
                                                     Counter.story_id == r['story_id'])).first()
             if r.marked == 0:  # INCREASE COUNTER
-
-                if counter_row is None:  # non-existing counter
-                    # Create counter and set it
-                    new_counter = Counter()
-                    new_counter.reaction_type_id = r.reaction_type_id
-                    new_counter.story_id = r.story_id
-                    new_counter.counter = r.count
-                    db.session.add(new_counter)
-                else:  # existing counter
-                    counter_row.counter = counter_row.counter + r.count
-
+                counter_row.counter = counter_row.counter + r.count
             else:  # DECREASE COUNTER
                 counter_row.counter = counter_row.counter - r.count
 

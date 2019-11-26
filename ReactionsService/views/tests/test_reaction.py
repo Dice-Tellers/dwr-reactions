@@ -1,4 +1,3 @@
-import datetime
 import json
 
 import flask_testing
@@ -20,10 +19,6 @@ class TestReaction(flask_testing.TestCase):
 
     # def setUp(self) -> None:
     #     with app.app_context():
-
-    def assertDescription(self, reply, expected_description):
-        body = json.loads(str(reply.data, 'utf8'))
-        self.assertEqual(body['description'], expected_description)
 
     def test_reaction(self):
         len_to_be_deleted_reactions = len(Reaction.query.filter(Reaction.story_id == '1',
@@ -142,7 +137,6 @@ class TestReaction(flask_testing.TestCase):
         self.assertEqual(expected_body, body)
 
     def test_get_counters(self):
-
         data = {
             'story_id': 1,
         }
@@ -156,7 +150,6 @@ class TestReaction(flask_testing.TestCase):
         self.assertEqual(expected_body, body)
 
     def test_initialize_new_story(self):
-
         data = {
             'story_id': 1,
         }
@@ -167,9 +160,7 @@ class TestReaction(flask_testing.TestCase):
 
         self.assertEqual(len(counters), len(types))
 
-
     def test_delete_cascade(self):
-
         data = {
             'story_id': 1,
         }
@@ -198,7 +189,7 @@ class TestReaction(flask_testing.TestCase):
     def setup_class(cls):
         cls.mock_server_port = 5003
         start_mock_server(cls.mock_server_port)
-
+        
     def test_reactions_stats(self):
         # Check stats of story #1
         response = self.client.get('/reactions/stats/1')

@@ -21,5 +21,5 @@ SEARCH_URL = HOME_URL + "search"
 # Database in memory
 TEST_DB = 'sqlite:///:memory:'
 
-# Database "storytellers.db"
+# Database
 DEFAULT_DB = 'sqlite:///reaction-service.db'

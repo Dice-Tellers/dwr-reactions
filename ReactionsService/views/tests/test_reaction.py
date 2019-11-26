@@ -18,10 +18,6 @@ class TestReaction(flask_testing.TestCase):
     # def setUp(self) -> None:
     #     with app.app_context():
 
-    def assertDescription(self, reply, expected_description):
-        body = json.loads(str(reply.data, 'utf8'))
-        self.assertEqual(body['description'], expected_description)
-
     def test_reaction(self):
         len_to_be_deleted_reactions = len(Reaction.query.filter(Reaction.story_id == '1',
                                                                 Reaction.reactor_id == 1,

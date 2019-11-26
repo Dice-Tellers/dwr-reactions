@@ -1,4 +1,3 @@
-import datetime
 import json
 
 import flask_testing
@@ -140,7 +139,6 @@ class TestReaction(flask_testing.TestCase):
         self.assertEqual(expected_body, body)
 
     def test_get_counters(self):
-
         data = {
             'story_id': 1,
         }
@@ -154,7 +152,6 @@ class TestReaction(flask_testing.TestCase):
         self.assertEqual(expected_body, body)
 
     def test_initialize_new_story(self):
-
         data = {
             'story_id': 1,
         }
@@ -165,9 +162,7 @@ class TestReaction(flask_testing.TestCase):
 
         self.assertEqual(len(counters), len(types))
 
-
     def test_delete_cascade(self):
-
         data = {
             'story_id': 1,
         }
@@ -191,7 +186,7 @@ class TestReaction(flask_testing.TestCase):
 
         self.assertEqual(len(counters), 0)
         self.assertEqual(len(reactions), 0)
-    
+
     def test_reactions_stats(self):
         # Check stats of story #1
         response = self.client.get('/reactions/stats/1')

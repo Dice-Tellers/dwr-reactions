@@ -3,9 +3,11 @@ import json
 
 import flask_testing
 
+from unittest.mock import Mock, patch
 from ReactionsService.app import create_app
 from ReactionsService.database import db, Reaction, Counter, ReactionCatalogue
 from ReactionsService.urls import TEST_DB
+from ReactionsService.views.tests.mock import start_mock_server, get_free_port
 
 
 class TestReaction(flask_testing.TestCase):
@@ -192,17 +194,36 @@ class TestReaction(flask_testing.TestCase):
         self.assertEqual(len(counters), 0)
         self.assertEqual(len(reactions), 0)
     
+    @classmethod
+    def setup_class(cls):
+        cls.mock_server_port = 5003
+        start_mock_server(cls.mock_server_port)
+
     def test_reactions_stats(self):
         # Check stats of story #1
         response = self.client.get('/reactions/stats/1')
         body = json.loads(str(response.data, 'utf8'))
         self.assertEqual(body, {"dislike": 0, "like": 0})
 
-        # Check reactions of a user's wall
-        response = self.client.get('/reactions/stats/users/1')
+        # Add some reactions to a story
+        example = Counter()
+        example.story_id = 1
+        example.reaction_type_id = 1
+        example.counter = 3
+        db.session.add(example)
+        db.session.commit()
+
+        # Check stats of story #2
+        response = self.client.get('/reactions/stats/1')
         body = json.loads(str(response.data, 'utf8'))
-        expected_body = {
-            'tot_num_reactions': 0,
-            'avg_reactions': 0
-        }
-        self.assertEqual(body, expected_body)
+        self.assertEqual(body, {"dislike": 0, "like": 3})
+
+        # # Check story's reactions statistics
+        # mock_reactions_stats_url = 'http://127.0.0.1:{port}/stories/users/'.format(port=self.mock_server_port)
+        # with patch.dict('ReactionsService.views.reactions.__dict__', {'USER_STORIES_URL': mock_reactions_stats_url}):
+        #     response = self.client.get('/reactions/stats/users/1', content_type='application/json')
+        # body = json.loads(str(response.data, 'utf8'))
+        # print(body)
+        # self.assertStatus(response, 200)
+        # self.assertEqual(body['tot_num_reactions'], 3)
+        # self.assertEqual(body['avg_reactions'], 1.5)

@@ -10,6 +10,7 @@ from ReactionsService.database import db, Reaction, ReactionCatalogue, Counter
 YML = os.path.join(os.path.dirname(__file__), '..', 'static', 'api_reactions.yaml')
 reactions = SwaggerBlueprint('reactions', '__name__', swagger_spec=YML)
 
+USER_STORIES_URL = "http://127.0.0.1:5003/stories/users/"
 
 @reactions.operation("getReactions")
 def _get_reactions(story_id):
@@ -132,7 +133,7 @@ def _reaction_stats(story_id):
 
 @reactions.operation("statsUserReactions")
 def _reaction_user_stats(user_id):
-    response = requests.get('http://localhost:5003/stories/users/{}'.format(user_id))  # call stories/userid di eleonora
+    response = requests.get(USER_STORIES_URL + '{}'.format(user_id))  # call stories/userid di eleonora
     all_stories = response.json()
     num_all_stories = 0
     reactions_avg = 0.0

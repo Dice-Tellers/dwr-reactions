@@ -133,7 +133,7 @@ def _reaction_stats(story_id):
 
 @reactions.operation("statsUserReactions")
 def _reaction_user_stats(user_id):
-    response = requests.get(USER_STORIES_URL + '{}'.format(user_id))  # call stories/userid di eleonora
+    response = requests.get(USER_STORIES_URL + '{}'.format(user_id))
     all_stories = response.json()
     num_all_stories = 0
     reactions_avg = 0.0

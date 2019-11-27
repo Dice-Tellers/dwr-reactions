@@ -10,8 +10,7 @@ import requests
 
 
 class MockServerRequestHandler(BaseHTTPRequestHandler):
-    NEW_PATTERN = re.compile(r'^/(/stories/users/*)$')
-
+    NEW_PATTERN = re.compile(r'/stories/users/')
     def do_GET(self):
         if re.search(self.NEW_PATTERN, self.path):
             # Add response status code.

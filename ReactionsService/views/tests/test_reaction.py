@@ -209,12 +209,13 @@ class TestReaction(flask_testing.TestCase):
         body = json.loads(str(response.data, 'utf8'))
         self.assertEqual(body, {"dislike": 0, "like": 3})
 
-        # # Check story's reactions statistics
-        # mock_reactions_stats_url = 'http://127.0.0.1:{port}/stories/users/'.format(port=self.mock_server_port)
-        # with patch.dict('ReactionsService.views.reactions.__dict__', {'USER_STORIES_URL': mock_reactions_stats_url}):
-        #     response = self.client.get('/reactions/stats/users/1', content_type='application/json')
-        # body = json.loads(str(response.data, 'utf8'))
-        # print(body)
-        # self.assertStatus(response, 200)
-        # self.assertEqual(body['tot_num_reactions'], 3)
-        # self.assertEqual(body['avg_reactions'], 1.5)
+
+        # Check story's reactions statistics
+        mock_reactions_stats_url = 'http://127.0.0.1:{port}/stories/users/'.format(port=self.mock_server_port)
+        with patch.dict('ReactionsService.views.reactions.__dict__', {'USER_STORIES_URL': mock_reactions_stats_url}):
+            response = self.client.get('/reactions/stats/users/1', content_type='application/json')
+        body = json.loads(str(response.data, 'utf8'))
+        print(body)
+        self.assertStatus(response, 200)
+        self.assertEqual(body['tot_num_reactions'], 3)
+        self.assertEqual(body['avg_reactions'], 1.5)

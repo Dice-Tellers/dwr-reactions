@@ -3,6 +3,7 @@
 omit =
     *__init__.py*
     *tasks.py*
+    *mock.py*
 
 include =
-    */monolith/*
+    */ReactionsService/*
